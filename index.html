@@ -60,6 +60,7 @@
             subTipoServico: '',
             numeroCNH: '',
             nomeCompleto: '',
+            razaoSocial: '',
             transportadora: '',
             tipoVeiculo: '',
             placaVeiculo: '',
@@ -87,6 +88,7 @@
               }
             },
             { id: 'nomeCompleto', question: 'Qual é o seu nome completo?', type: 'text', placeholder: 'Digite seu nome completo', minWords: 2 },
+            { id: 'razaoSocial', question: 'Qual é a Razão Social da empresa?', type: 'text', placeholder: 'Digite a razão social', minLength: 3, dica: 'A Razão Social é o nome oficial registrado da empresa (exemplo: "Transportadora ABC Ltda"). Geralmente está no CNPJ ou na documentação do veículo.' }, 
             { id: 'transportadora', question: 'Qual é a Transportadora?', type: 'text', placeholder: 'Digite o nome da transportadora', minLength: 3 },
             {
               id: 'tipoVeiculo',
@@ -229,7 +231,11 @@
               const palavras = nome.split(/\s+/).filter(p => p.length > 0);
               return palavras.length >= 2;
             }
-            
+
+            if (currentQuestion.id === 'razaoSocial') {
+              return formData.razaoSocial.trim().length >= 3;
+            }
+
             if (currentQuestion.id === 'transportadora') {
               return formData.transportadora.trim().length >= 3;
             }
@@ -1158,25 +1164,21 @@
 
                     {currentStep < questions.length - 1 ? (
                       isCurrentStepValid() && (
-                        <button onClick={handleNext} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-lg transform hover:scale-105">
+                        <button onClick={handleNext} className="...">
                           Próxima
-                          <ChevronRight size={20} />
                         </button>
                       )
                     ) : (
-                      isCurrentStepValid() && (
-                        <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105">
-                          <Check size={20} />
+                      isCurrentStepValid() && assinaturaFormulario ? (
+                        <button onClick={handleSubmit} className="...">
                           Enviar
+                        </button>
+                      ) : (
+                        <button disabled className="flex-1 px-6 py-4 rounded-xl font-semibold bg-gray-300 text-gray-500 cursor-not-allowed">
+                          ⚠️ Assine para enviar
                         </button>
                       )
                     )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<MobileForm />);
