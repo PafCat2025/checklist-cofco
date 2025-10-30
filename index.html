@@ -5,214 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checklist COFCO International</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow-x: hidden; }
-        .animate-fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState, useRef, useEffect } = React;
-
-        const MobileForm = () => {
-          const [currentStep, setCurrentStep] = useState(-1);
-          const [showQR, setShowQR] = useState(true);
-          const [showWelcome, setShowWelcome] = useState(false);
-          const [showPerfilOpcao, setShowPerfilOpcao] = useState(false);
-          const [showConclusao, setShowConclusao] = useState(false);
-          const [perfilSalvo, setPerfilSalvo] = useState(null);
-          const [assinatura, setAssinatura] = useState('');
-          const [dataHoraConclusao, setDataHoraConclusao] = useState(null);
-          const [assinaturaFormulario, setAssinaturaFormulario] = useState('');
-          const canvasRef = useRef(null);
-          const canvasFormRef = useRef(null);
-          const [isDrawing, setIsDrawing] = useState(false);
-          const [isDrawingForm, setIsDrawingForm] = useState(false);
-          const [formData, setFormData] = useState({
-            tipoServico: '', subTipoServico: '', numeroCNH: '', nomeCompleto: '',
-            transportadora: '', tipoVeiculo: '', placaVeiculo: '', episSeguranca: [],
-            telefoneWhatsapp: '', regrasAceitas: false, avisosAceitos: false,
-            termoAceito: false, email: '', telefone: '', idade: '', interesse: '', mensagem: ''
-          });
-
-          const questions = [
-            {
-              id: 'tipoServico', question: 'Qual o tipo de prestação de serviço será realizado?',
-              type: 'servico-tipo',
-              options: [
-                { value: 'Entrega', emoji: '📦' },
-                { value: 'Descarga', emoji: '🚛' },
-                { value: 'Coleta', emoji: '📋' }
-              ],
-              subOptions: {
-                'Entrega': [{ value: 'Almoxarifado', emoji: '🏭' }, { value: 'Outros', emoji: '📝' }],
-                'Descarga': [{ value: 'Gesso ou Calcário', emoji: '⚙️' }, { value: 'Outros', emoji: '📝' }],
-                'Coleta': [{ value: 'Almoxarifado', emoji: '🏭' }, { value: 'Outros', emoji: '📝' }]
-              }
-            },
-            { id: 'nomeCompleto', question: 'Qual é o seu nome completo?', type: 'text', placeholder: 'Digite seu nome completo', minWords: 2 },
-            { id: 'transportadora', question: 'Qual é a Transportadora?', type: 'text', placeholder: 'Digite o nome da transportadora', minLength: 3 },
-            {
-              id: 'tipoVeiculo', question: 'Qual é o tipo do veículo?', type: 'veiculo-tipo',
-              options: [{ value: 'Veículo Leve', emoji: '🚗' }, { value: 'Veículo de Carga', emoji: '🚚' }]
-            },
-            {
-              id: 'episSeguranca', question: 'Quais EPIs de segurança você está usando?', type: 'epis-multiple',
-              subtitle: 'Selecione todos que se aplicam',
-              options: [
-                { value: 'Botas de Segurança', emoji: '🥾', color: 'from-amber-500 to-orange-600' },
-                { value: 'Colete Refletivo', emoji: '🦺', color: 'from-yellow-400 to-amber-500' },
-                { value: 'Óculos de Proteção', emoji: '🥽', color: 'from-blue-400 to-indigo-500' },
-                { value: 'Capacete com Jugular', emoji: '⛑️', color: 'from-red-500 to-rose-600' },
-                { value: 'Protetor Auricular', emoji: '🎧', color: 'from-green-500 to-emerald-600' }
-              ]
-            },
-            { id: 'telefoneWhatsapp', question: 'Qual é o seu número para contato e WhatsApp?', type: 'telefone', placeholder: '(00) 00000-0000' }
-          ];
-
-          const currentQuestion = questions[currentStep];
-          
-          useEffect(() => {
-            const perfilLocal = localStorage.getItem('perfilChecklistCofco');
-            if (perfilLocal) {
-              try {
-                const perfil = JSON.parse(perfilLocal);
-                setPerfilSalvo(perfil);
-                if (perfil.numeroCNH) {
-                  setFormData(prev => ({ ...prev, numeroCNH: perfil.numeroCNH }));
-                }
-              } catch (e) {
-                console.error('Erro ao carregar perfil:', e);
-              }
-            }
-          }, []);
-
-          // TELA QR CODE
-          if (showQR) {
-            return (
-              <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl shadow-2xl p-6 max-w-md w-full text-center">
-                  <h1 className="text-4xl font-bold text-gray-800 mb-1">COFCO</h1>
-                  <h2 className="text-3xl font-bold text-blue-600 mb-3">International</h2>
-                  <p className="text-gray-600 text-sm mb-6">Formulário de Acesso</p>
-                  
-                  <button
-                    onClick={() => {
-                      setShowQR(false);
-                      setShowWelcome(true);
-                    }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-                  >
+    <div id="root">
+        <div style="min-height: 100vh; background: linear-gradient(to bottom right, #2563eb, #60a5fa, #22d3ee); display: flex; align-items: center; justify-content: center; padding: 1rem;">
+            <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 2rem; max-width: 28rem; width: 100%; text-align: center;">
+                <h1 style="font-size: 2.25rem; font-weight: bold; color: #1f2937; margin-bottom: 0.5rem;">COFCO</h1>
+                <h2 style="font-size: 1.875rem; font-weight: bold; color: #2563eb; margin-bottom: 1rem;">International</h2>
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem;">Formulário de Acesso</p>
+                <button id="btnAbrir" style="width: 100%; background: linear-gradient(to right, #2563eb, #0891b2); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s;">
                     Abrir Formulário
-                  </button>
-                </div>
-              </div>
-            );
-          }
-
-          // TELA BEM-VINDO
-          if (showWelcome) {
-            return (
-              <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
-                  <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-8 text-center">
-                    <h1 className="text-3xl font-bold text-white mb-2">Bem-vindo à</h1>
-                    <h2 className="text-2xl font-bold text-white">COFCO International</h2>
-                  </div>
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">Checklist de Segurança</h3>
-                    
-                    <div className="space-y-4 mb-8">
-                      <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center mt-0.5 text-white text-xs">
-                          ✓
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-800">EPIs obrigatórios</p>
-                          <p className="text-sm text-gray-600">Capacete, óculos de proteção, luvas e calçado de segurança</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center mt-0.5 text-white text-xs">
-                          ✓
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-800">Área sinalizada</p>
-                          <p className="text-sm text-gray-600">Verifique a sinalização e respeite os limites de segurança</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center mt-0.5 text-white text-xs">
-                          ✓
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-800">Condições do ambiente</p>
-                          <p className="text-sm text-gray-600">Ambiente limpo, organizado e sem riscos aparentes</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center mt-0.5 text-white text-xs">
-                          ✓
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-800">Procedimentos conhecidos</p>
-                          <p className="text-sm text-gray-600">Estou ciente dos procedimentos de segurança da área</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={() => {
-                        setShowWelcome(false);
-                        if (perfilSalvo) {
-                          setShowPerfilOpcao(true);
-                        } else {
-                          setCurrentStep(0);
-                        }
-                      }}
-                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
-                    >
-                      Iniciar Checklist
-                      <span>→</span>
-                    </button>
-
-                    <p className="text-center text-sm text-gray-500 mt-4">
-                      🛡️ Sua segurança é nossa prioridade
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-
-          // TELA EM DESENVOLVIMENTO (temporária)
-          return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">✅ Funcionou Perfeitamente!</h1>
-                <p className="text-gray-600 mb-4">O formulário está carregando corretamente.</p>
-                <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4">
-                  <p className="text-green-800 font-semibold">🎉 Pronto para adicionar as próximas telas!</p>
-                  <p className="text-sm text-gray-600 mt-2">Etapa atual: {currentStep}</p>
-                </div>
-              </div>
+                </button>
             </div>
-          );
-        };
+        </div>
+    </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(MobileForm));
+    <script>
+        document.getElementById('btnAbrir').addEventListener('click', function() {
+            document.getElementById('root').innerHTML = `
+                <div style="min-height: 100vh; background: linear-gradient(to bottom right, #2563eb, #60a5fa, #22d3ee); display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                    <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 28rem; width: 100%; overflow: hidden;">
+                        <div style="background: linear-gradient(to right, #2563eb, #0891b2); padding: 2rem; text-align: center;">
+                            <h1 style="font-size: 1.875rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Bem-vindo à</h1>
+                            <h2 style="font-size: 1.5rem; font-weight: bold; color: white;">COFCO International</h2>
+                        </div>
+                        <div style="padding: 2rem;">
+                            <h3 style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-bottom: 1rem; text-align: center;">Checklist de Segurança</h3>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
+                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
+                                    <div>
+                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">EPIs obrigatórios</p>
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Capacete, óculos, luvas e calçado de segurança</p>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
+                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
+                                    <div>
+                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">Área sinalizada</p>
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Verifique a sinalização e respeite os limites</p>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
+                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
+                                    <div>
+                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">Condições do ambiente</p>
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Ambiente limpo e organizado</p>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe;">
+                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
+                                    <div>
+                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">Procedimentos conhecidos</p>
+                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Ciente dos procedimentos de segurança</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button id="btnIniciar" style="width: 100%; background: linear-gradient(to right, #2563eb, #0891b2); color: white; font-weight: bold; padding: 1rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s;">
+                                Iniciar Checklist →
+                            </button>
+                            
+                            <p style="text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 1rem;">🛡️ Sua segurança é nossa prioridade</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('btnIniciar').addEventListener('click', function() {
+                document.getElementById('root').innerHTML = `
+                    <div style="min-height: 100vh; background: linear-gradient(to bottom right, #10b981, #34d399, #6ee7b7); display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                        <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 2rem; max-width: 28rem; width: 100%; text-align: center;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                            <h1 style="font-size: 1.875rem; font-weight: bold; color: #1f2937; margin-bottom: 1rem;">Funcionou Perfeitamente!</h1>
+                            <p style="color: #6b7280; margin-bottom: 1.5rem;">O formulário está carregando corretamente sem erros.</p>
+                            <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem;">
+                                <p style="color: #166534; font-weight: bold; font-size: 1.125rem; margin: 0 0 0.5rem 0;">🎉 Sucesso Total!</p>
+                                <p style="color: #15803d; font-size: 0.875rem; margin: 0;">Agora podemos adicionar todas as telas do formulário completo.</p>
+                            </div>
+                            <button onclick="location.reload()" style="width: 100%; background: #3b82f6; color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer;">
+                                ← Voltar ao Início
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
     </script>
 </body>
 </html>
