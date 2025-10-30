@@ -7,24 +7,106 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { margin: 0; padding: 0; overflow-x: hidden; }
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(to right, #2563eb, #0891b2);
+            color: white;
+            font-weight: bold;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div id="root">
-        <div style="min-height: 100vh; background: linear-gradient(to bottom right, #2563eb, #60a5fa, #22d3ee); display: flex; align-items: center; justify-content: center; padding: 1rem;">
-            <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 2rem; max-width: 28rem; width: 100%; text-align: center;">
-                <h1 style="font-size: 2.25rem; font-weight: bold; color: #1f2937; margin-bottom: 0.5rem;">COFCO</h1>
-                <h2 style="font-size: 1.875rem; font-weight: bold; color: #2563eb; margin-bottom: 1rem;">International</h2>
-                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem;">Formulário de Acesso</p>
-                <button id="btnAbrir" style="width: 100%; background: linear-gradient(to right, #2563eb, #0891b2); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s;">
-                    Abrir Formulário
-                </button>
-            </div>
-        </div>
-    </div>
+    <div id="root"></div>
 
     <script>
-        document.getElementById('btnAbrir').addEventListener('click', function() {
+        let currentStep = 0;
+        let formData = {
+            tipoServico: '',
+            subTipoServico: '',
+            numeroCNH: '',
+            nomeCompleto: '',
+            transportadora: '',
+            tipoVeiculo: '',
+            placaVeiculo: '',
+            episSeguranca: [],
+            telefoneWhatsapp: '',
+            regrasAceitas: false,
+            avisosAceitos: false,
+            termoAceito: false
+        };
+
+        const questions = [
+            {
+                id: 'tipoServico',
+                question: 'Qual o tipo de prestação de serviço será realizado?',
+                type: 'servico-tipo',
+                options: [
+                    { value: 'Entrega', emoji: '📦' },
+                    { value: 'Descarga', emoji: '🚛' },
+                    { value: 'Coleta', emoji: '📋' }
+                ],
+                subOptions: {
+                    'Entrega': [{ value: 'Almoxarifado', emoji: '🏭' }, { value: 'Outros', emoji: '📝' }],
+                    'Descarga': [{ value: 'Gesso ou Calcário', emoji: '⚙️' }, { value: 'Outros', emoji: '📝' }],
+                    'Coleta': [{ value: 'Almoxarifado', emoji: '🏭' }, { value: 'Outros', emoji: '📝' }]
+                }
+            },
+            { id: 'nomeCompleto', question: 'Qual é o seu nome completo?', type: 'text', placeholder: 'Digite seu nome completo' },
+            { id: 'transportadora', question: 'Qual é a Transportadora?', type: 'text', placeholder: 'Digite o nome da transportadora' },
+            {
+                id: 'tipoVeiculo',
+                question: 'Qual é o tipo do veículo?',
+                type: 'veiculo-tipo',
+                options: [{ value: 'Veículo Leve', emoji: '🚗' }, { value: 'Veículo de Carga', emoji: '🚚' }]
+            },
+            {
+                id: 'episSeguranca',
+                question: 'Quais EPIs de segurança você está usando?',
+                type: 'epis-multiple',
+                subtitle: 'Selecione todos que se aplicam',
+                options: [
+                    { value: 'Botas de Segurança', emoji: '🥾' },
+                    { value: 'Colete Refletivo', emoji: '🦺' },
+                    { value: 'Óculos de Proteção', emoji: '🥽' },
+                    { value: 'Capacete com Jugular', emoji: '⛑️' },
+                    { value: 'Protetor Auricular', emoji: '🎧' }
+                ]
+            },
+            { id: 'telefoneWhatsapp', question: 'Qual é o seu número para contato e WhatsApp?', type: 'telefone', placeholder: '(00) 00000-0000' }
+        ];
+
+        function renderTelaInicial() {
+            document.getElementById('root').innerHTML = `
+                <div style="min-height: 100vh; background: linear-gradient(to bottom right, #2563eb, #60a5fa, #22d3ee); display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                    <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 2rem; max-width: 28rem; width: 100%; text-align: center;">
+                        <h1 style="font-size: 2.25rem; font-weight: bold; color: #1f2937; margin-bottom: 0.5rem;">COFCO</h1>
+                        <h2 style="font-size: 1.875rem; font-weight: bold; color: #2563eb; margin-bottom: 1rem;">International</h2>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem;">Formulário de Acesso</p>
+                        <button onclick="renderBoasVindas()" class="btn-primary">Abrir Formulário</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBoasVindas() {
             document.getElementById('root').innerHTML = `
                 <div style="min-height: 100vh; background: linear-gradient(to bottom right, #2563eb, #60a5fa, #22d3ee); display: flex; align-items: center; justify-content: center; padding: 1rem;">
                     <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 28rem; width: 100%; overflow: hidden;">
@@ -36,68 +118,416 @@
                             <h3 style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-bottom: 1rem; text-align: center;">Checklist de Segurança</h3>
                             
                             <div style="margin-bottom: 2rem;">
-                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
-                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
-                                    <div>
-                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">EPIs obrigatórios</p>
-                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Capacete, óculos, luvas e calçado de segurança</p>
+                                ${[
+                                    { titulo: 'EPIs obrigatórios', desc: 'Capacete, óculos, luvas e calçado de segurança' },
+                                    { titulo: 'Área sinalizada', desc: 'Verifique a sinalização e respeite os limites' },
+                                    { titulo: 'Condições do ambiente', desc: 'Ambiente limpo e organizado' },
+                                    { titulo: 'Procedimentos conhecidos', desc: 'Ciente dos procedimentos de segurança' }
+                                ].map(item => `
+                                    <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
+                                        <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
+                                        <div>
+                                            <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">${item.titulo}</p>
+                                            <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">${item.desc}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                
-                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
-                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
-                                    <div>
-                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">Área sinalizada</p>
-                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Verifique a sinalização e respeite os limites</p>
-                                    </div>
-                                </div>
-                                
-                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe; margin-bottom: 1rem;">
-                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
-                                    <div>
-                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">Condições do ambiente</p>
-                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Ambiente limpo e organizado</p>
-                                    </div>
-                                </div>
-                                
-                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 2px solid #bfdbfe;">
-                                    <div style="flex-shrink: 0; width: 1.5rem; height: 1.5rem; background: #2563eb; border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; margin-top: 0.125rem;">✓</div>
-                                    <div>
-                                        <p style="font-weight: 600; color: #1f2937; margin: 0 0 0.25rem 0;">Procedimentos conhecidos</p>
-                                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Ciente dos procedimentos de segurança</p>
-                                    </div>
-                                </div>
+                                `).join('')}
                             </div>
                             
-                            <button id="btnIniciar" style="width: 100%; background: linear-gradient(to right, #2563eb, #0891b2); color: white; font-weight: bold; padding: 1rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s;">
-                                Iniciar Checklist →
-                            </button>
-                            
+                            <button onclick="renderFormulario()" class="btn-primary">Iniciar Checklist →</button>
                             <p style="text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 1rem;">🛡️ Sua segurança é nossa prioridade</p>
                         </div>
                     </div>
                 </div>
             `;
+        }
+
+        function renderFormulario() {
+            const question = questions[currentStep];
+            const progress = ((currentStep + 1) / questions.length) * 100;
             
-            document.getElementById('btnIniciar').addEventListener('click', function() {
-                document.getElementById('root').innerHTML = `
-                    <div style="min-height: 100vh; background: linear-gradient(to bottom right, #10b981, #34d399, #6ee7b7); display: flex; align-items: center; justify-content: center; padding: 1rem;">
-                        <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 2rem; max-width: 28rem; width: 100%; text-align: center;">
-                            <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
-                            <h1 style="font-size: 1.875rem; font-weight: bold; color: #1f2937; margin-bottom: 1rem;">Funcionou Perfeitamente!</h1>
-                            <p style="color: #6b7280; margin-bottom: 1.5rem;">O formulário está carregando corretamente sem erros.</p>
-                            <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem;">
-                                <p style="color: #166534; font-weight: bold; font-size: 1.125rem; margin: 0 0 0.5rem 0;">🎉 Sucesso Total!</p>
-                                <p style="color: #15803d; font-size: 0.875rem; margin: 0;">Agora podemos adicionar todas as telas do formulário completo.</p>
+            let questionHTML = '';
+            
+            if (question.type === 'text') {
+                questionHTML = `
+                    <input 
+                        type="text" 
+                        id="input${question.id}"
+                        placeholder="${question.placeholder}"
+                        value="${formData[question.id] || ''}"
+                        style="width: 100%; padding: 1rem; border: 2px solid #bfdbfe; border-radius: 0.75rem; font-size: 1rem; background: #eff6ff;"
+                        onkeyup="formData['${question.id}'] = this.value; checkValidity();"
+                    />
+                `;
+            } else if (question.type === 'telefone') {
+                questionHTML = `
+                    <input 
+                        type="tel" 
+                        id="input${question.id}"
+                        placeholder="${question.placeholder}"
+                        value="${formData[question.id] || ''}"
+                        maxlength="15"
+                        style="width: 100%; padding: 1rem; border: 2px solid #10b981; border-radius: 0.75rem; font-size: 1.25rem; font-weight: bold; text-align: center; background: #f0fdf4;"
+                        onkeyup="
+                            let v = this.value.replace(/\\D/g, '');
+                            if (v.length > 11) v = v.slice(0, 11);
+                            if (v.length > 0) {
+                                if (v.length <= 2) v = '(' + v;
+                                else if (v.length <= 7) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+                                else v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+                            }
+                            this.value = v;
+                            formData['${question.id}'] = v;
+                            checkValidity();
+                        "
+                    />
+                    <div id="telStatus" style="margin-top: 1rem; text-align: center;"></div>
+                `;
+            } else if (question.type === 'servico-tipo') {
+                questionHTML = `
+                    <div id="tipoServicoContainer">
+                        ${question.options.map(opt => `
+                            <button 
+                                onclick="selecionarTipoServico('${opt.value}')"
+                                style="width: 100%; padding: 1.5rem; border: 2px solid #bfdbfe; border-radius: 1rem; background: white; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;"
+                                onmouseover="this.style.transform='scale(1.02)'; this.style.borderColor='#2563eb';"
+                                onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#bfdbfe';"
+                            >
+                                <span style="font-size: 2.5rem;">${opt.emoji}</span>
+                                <p style="font-size: 1.125rem; font-weight: bold; color: #1f2937; margin: 0.5rem 0 0 0;">${opt.value}</p>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="subTipoContainer"></div>
+                    <div id="cnhContainer"></div>
+                `;
+            } else if (question.type === 'veiculo-tipo') {
+                questionHTML = `
+                    <div id="tipoVeiculoContainer">
+                        ${question.options.map(opt => `
+                            <button 
+                                onclick="selecionarTipoVeiculo('${opt.value}')"
+                                style="width: 100%; padding: 1.5rem; border: 2px solid #bfdbfe; border-radius: 1rem; background: white; margin-bottom: 1rem; cursor: pointer;"
+                            >
+                                <span style="font-size: 2.5rem;">${opt.emoji}</span>
+                                <p style="font-size: 1.125rem; font-weight: bold; color: #1f2937; margin: 0.5rem 0 0 0;">${opt.value}</p>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="placaContainer"></div>
+                `;
+            } else if (question.type === 'epis-multiple') {
+                questionHTML = `
+                    <p style="text-align: center; color: #6b7280; margin-bottom: 1rem;">${question.subtitle}</p>
+                    ${question.options.map((epi, idx) => `
+                        <button 
+                            id="epi${idx}"
+                            onclick="toggleEPI('${epi.value}', ${idx})"
+                            style="width: 100%; padding: 1.25rem; border: 2px solid #e5e7eb; border-radius: 1rem; background: white; margin-bottom: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 1rem;"
+                        >
+                            <div style="width: 2rem; height: 2rem; border: 2px solid #9ca3af; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;" id="check${idx}"></div>
+                            <span style="font-size: 2rem;">${epi.emoji}</span>
+                            <span style="font-weight: bold; color: #1f2937; flex: 1; text-align: left;">${epi.value}</span>
+                        </button>
+                    `).join('')}
+                    <div id="episStatus" style="margin-top: 1rem; padding: 1rem; background: #f0fdf4; border: 2px solid #86efac; border-radius: 0.75rem; text-align: center; display: none;">
+                        <p style="color: #166534; font-weight: bold; margin: 0;" id="episCount"></p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('root').innerHTML = `
+                <div style="min-height: 100vh; background: linear-gradient(to bottom right, #2563eb, #60a5fa, #22d3ee); display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                    <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 28rem; width: 100%; overflow: hidden;">
+                        <div style="background: linear-gradient(to right, #2563eb, #0891b2); padding: 1.5rem;">
+                            <div style="height: 0.5rem; background: rgba(255,255,255,0.3); border-radius: 9999px; overflow: hidden; margin-bottom: 1rem;">
+                                <div style="height: 100%; background: white; width: ${progress}%; transition: width 0.3s;"></div>
                             </div>
-                            <button onclick="location.reload()" style="width: 100%; background: #3b82f6; color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer;">
-                                ← Voltar ao Início
+                            <p style="color: white; text-align: center; font-weight: 500; font-size: 0.875rem;">Etapa ${currentStep + 1} de ${questions.length}</p>
+                            <p style="color: white; text-align: center; font-weight: bold; font-size: 0.875rem;">${Math.round(progress)}% Completo</p>
+                        </div>
+                        
+                        <div style="padding: 2rem;">
+                            <h2 style="font-size: 1.5rem; font-weight: bold; color: #1f2937; margin-bottom: 1rem;">${question.question}</h2>
+                            
+                            <div style="background: #dbeafe; border-left: 4px solid #2563eb; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                                <p style="font-size: 0.875rem; color: #1e40af; margin: 0;">💡 ${getTip(question.id)}</p>
+                            </div>
+                            
+                            ${questionHTML}
+                            
+                            <div style="display: flex; gap: 0.75rem; margin-top: 2rem;">
+                                ${currentStep > 0 ? `
+                                    <button onclick="voltarEtapa()" class="btn-secondary" style="flex: 0 0 auto; padding: 1rem;">← Voltar</button>
+                                ` : ''}
+                                <button id="btnNext" onclick="proximaEtapa()" class="btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled>
+                                    ${currentStep === questions.length - 1 ? 'Finalizar ✓' : 'Próxima →'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            checkValidity();
+        }
+
+        function getTip(id) {
+            const tips = {
+                'tipoServico': 'Selecione o tipo de serviço e depois escolha a categoria específica',
+                'nomeCompleto': 'Digite seu nome completo (nome e sobrenome)',
+                'transportadora': 'Informe o nome da empresa transportadora',
+                'tipoVeiculo': 'Escolha o tipo de veículo e informe a placa',
+                'episSeguranca': 'Sua segurança é prioridade! Selecione os EPIs que você está usando',
+                'telefoneWhatsapp': 'Digite seu número de celular com DDD para contato via WhatsApp'
+            };
+            return tips[id] || '';
+        }
+
+        function selecionarTipoServico(tipo) {
+            formData.tipoServico = tipo;
+            const subOptions = questions[0].subOptions[tipo];
+            document.getElementById('subTipoContainer').innerHTML = `
+                <p style="font-weight: bold; margin: 1.5rem 0 0.75rem 0; color: #1f2937;">Escolha a categoria:</p>
+                ${subOptions.map(sub => `
+                    <button 
+                        onclick="selecionarSubTipo('${sub.value}')"
+                        style="width: 80%; margin: 0 auto 0.75rem auto; display: block; padding: 1rem; border: 2px solid #bfdbfe; border-radius: 0.75rem; background: white; cursor: pointer;"
+                    >
+                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">${sub.emoji}</span>
+                        <span style="font-weight: 600;">${sub.value}</span>
+                    </button>
+                `).join('')}
+            `;
+            document.getElementById('cnhContainer').innerHTML = '';
+            checkValidity();
+        }
+
+        function selecionarSubTipo(subTipo) {
+            formData.subTipoServico = subTipo;
+            if (formData.tipoServico === 'Descarga' && subTipo === 'Gesso ou Calcário') {
+                document.getElementById('cnhContainer').innerHTML = `
+                    <div style="margin-top: 1rem; padding: 1.5rem; background: #fef3c7; border: 3px solid #fbbf24; border-radius: 1rem;">
+                        <label style="display: block; font-weight: bold; color: #92400e; margin-bottom: 0.75rem;">
+                            <span style="font-size: 2rem; margin-right: 0.5rem;">🪪</span>
+                            Digite o número da sua CNH
+                        </label>
+                        <input 
+                            type="text" 
+                            id="inputCNH"
+                            placeholder="00000000000"
+                            maxlength="11"
+                            style="width: 100%; padding: 1rem; border: 3px solid #fbbf24; border-radius: 0.75rem; font-size: 1.25rem; font-weight: bold; text-align: center;"
+                            onkeyup="formData.numeroCNH = this.value.replace(/\\D/g, ''); checkValidity();"
+                        />
+                    </div>
+                `;
+            } else {
+                document.getElementById('cnhContainer').innerHTML = '';
+            }
+            checkValidity();
+        }
+
+        function selecionarTipoVeiculo(tipo) {
+            formData.tipoVeiculo = tipo;
+            document.getElementById('placaContainer').innerHTML = `
+                <div style="margin-top: 1rem; padding: 1.5rem; background: #eff6ff; border: 3px solid #3b82f6; border-radius: 1rem;">
+                    <label style="display: block; font-weight: bold; color: #1e40af; margin-bottom: 0.75rem; text-align: center;">
+                        <span style="font-size: 2rem; margin-right: 0.5rem;">🚗</span>
+                        ${tipo === 'Veículo Leve' ? 'Placa do Veículo' : 'Placa do Cavalo'}
+                    </label>
+                    <input 
+                        type="text" 
+                        id="inputPlaca"
+                        placeholder="ABC1D23"
+                        maxlength="7"
+                        style="width: 100%; padding: 1rem; border: 3px solid #3b82f6; border-radius: 0.75rem; font-size: 1.5rem; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 0.2rem;"
+                        onkeyup="formData.placaVeiculo = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); this.value = formData.placaVeiculo; checkValidity();"
+                    />
+                </div>
+            `;
+            checkValidity();
+        }
+
+        function toggleEPI(value, idx) {
+            const index = formData.episSeguranca.indexOf(value);
+            const btn = document.getElementById('epi' + idx);
+            const check = document.getElementById('check' + idx);
+            
+            if (index > -1) {
+                formData.episSeguranca.splice(index, 1);
+                btn.style.border = '2px solid #e5e7eb';
+                btn.style.background = 'white';
+                check.innerHTML = '';
+                check.style.borderColor = '#9ca3af';
+            } else {
+                formData.episSeguranca.push(value);
+                btn.style.border = '2px solid #10b981';
+                btn.style.background = '#f0fdf4';
+                check.innerHTML = '✓';
+                check.style.borderColor = '#10b981';
+                check.style.color = '#10b981';
+            }
+            
+            const statusDiv = document.getElementById('episStatus');
+            if (formData.episSeguranca.length > 0) {
+                statusDiv.style.display = 'block';
+                document.getElementById('episCount').textContent = `✓ ${formData.episSeguranca.length} EPI${formData.episSeguranca.length > 1 ? 's' : ''} selecionado${formData.episSeguranca.length > 1 ? 's' : ''}`;
+            } else {
+                statusDiv.style.display = 'none';
+            }
+            
+            checkValidity();
+        }
+
+        function checkValidity() {
+            const question = questions[currentStep];
+            const btn = document.getElementById('btnNext');
+            let isValid = false;
+            
+            if (question.type === 'text') {
+                const value = formData[question.id] || '';
+                isValid = value.trim().length >= 3;
+            } else if (question.type === 'telefone') {
+                const numeros = (formData[question.id] || '').replace(/\D/g, '');
+                isValid = numeros.length === 11;
+                const status = document.getElementById('telStatus');
+                if (numeros.length === 11) {
+                    status.innerHTML = '<p style="color: #166534; font-weight: bold; background: #f0fdf4; padding: 0.75rem; border-radius: 0.5rem;">✓ Número válido para WhatsApp</p>';
+                } else {
+                    status.innerHTML = '<p style="color: #1e40af; background: #dbeafe; padding: 0.75rem; border-radius: 0.5rem;">Digite 11 dígitos (DDD + número)</p>';
+                }
+            } else if (question.type === 'servico-tipo') {
+                if (formData.tipoServico && formData.subTipoServico) {
+                    if (formData.tipoServico === 'Descarga' && formData.subTipoServico === 'Gesso ou Calcário') {
+                        isValid = formData.numeroCNH && formData.numeroCNH.length >= 8;
+                    } else {
+                        isValid = true;
+                    }
+                }
+            } else if (question.type === 'veiculo-tipo') {
+                isValid = formData.tipoVeiculo && formData.placaVeiculo && formData.placaVeiculo.length === 7;
+            } else if (question.type === 'epis-multiple') {
+                isValid = formData.episSeguranca.length >= 1;
+            }
+            
+            if (isValid) {
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                btn.disabled = false;
+            } else {
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+                btn.disabled = true;
+            }
+        }
+
+        function proximaEtapa() {
+            if (currentStep < questions.length - 1) {
+                currentStep++;
+                renderFormulario();
+            } else {
+                renderConclusao();
+            }
+        }
+
+        function voltarEtapa() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderFormulario();
+            }
+        }
+
+        function renderConclusao() {
+            const dataHora = new Date();
+            const dataFormatada = dataHora.toLocaleDateString('pt-BR');
+            const horaFormatada = dataHora.toLocaleTimeString('pt-BR');
+            
+            document.getElementById('root').innerHTML = `
+                <div style="min-height: 100vh; background: linear-gradient(to bottom right, #10b981, #34d399, #6ee7b7); display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                    <div style="background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 28rem; width: 100%; overflow: hidden;">
+                        <div style="background: linear-gradient(to right, #10b981, #059669); padding: 2rem; text-align: center;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                            <h1 style="font-size: 1.875rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Checklist Concluído!</h1>
+                            <p style="color: white; opacity: 0.9;">Obrigado por preencher com atenção</p>
+                        </div>
+                        
+                        <div style="padding: 2rem;">
+                            <div style="background: #dbeafe; border: 2px solid #3b82f6; border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem; text-align: center;">
+                                <p style="color: #1e40af; font-weight: 600; margin: 0;">📅 ${dataFormatada}</p>
+                                <p style="color: #2563eb; font-size: 1.125rem; font-weight: bold; margin: 0.25rem 0 0 0;">🕐 ${horaFormatada}</p>
+                            </div>
+                            
+                            <div style="background: #fef3c7; border: 2px solid #fbbf24; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+                                <h3 style="font-weight: bold; color: #92400e; margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="font-size: 1.5rem;">⏳</span>
+                                    Próximos passos:
+                                </h3>
+                                <ul style="margin: 0; padding-left: 1.25rem; color: #92400e;">
+                                    <li style="margin-bottom: 0.5rem;">Aguarde no veículo ou em área segura</li>
+                                    <li style="margin-bottom: 0.5rem;">Você receberá autorização via WhatsApp ou ligação</li>
+                                    <li>Mantenha seu telefone por perto</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+                                <h3 style="font-weight: bold; color: #166534; margin: 0 0 0.75rem 0;">📋 Resumo do Checklist:</h3>
+                                <div style="color: #166534; font-size: 0.875rem;">
+                                    <p style="margin: 0.5rem 0;"><strong>Nome:</strong> ${formData.nomeCompleto}</p>
+                                    <p style="margin: 0.5rem 0;"><strong>Transportadora:</strong> ${formData.transportadora}</p>
+                                    <p style="margin: 0.5rem 0;"><strong>Veículo:</strong> ${formData.tipoVeiculo}</p>
+                                    <p style="margin: 0.5rem 0;"><strong>Placa:</strong> ${formData.placaVeiculo}</p>
+                                    <p style="margin: 0.5rem 0;"><strong>Serviço:</strong> ${formData.tipoServico} - ${formData.subTipoServico}</p>
+                                    <p style="margin: 0.5rem 0;"><strong>Telefone:</strong> ${formData.telefoneWhatsapp}</p>
+                                    <p style="margin: 0.5rem 0;"><strong>EPIs:</strong> ${formData.episSeguranca.join(', ')}</p>
+                                </div>
+                            </div>
+                            
+                            <button onclick="enviarChecklist()" class="btn-primary" style="margin-bottom: 0.75rem;">
+                                💬 Enviar Checklist
+                            </button>
+                            
+                            <button onclick="location.reload()" class="btn-secondary" style="width: 100%;">
+                                🔄 Novo Checklist
                             </button>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
+        }
+
+        function enviarChecklist() {
+            const dados = {
+                nomeCompleto: formData.nomeCompleto.toUpperCase(),
+                transportadora: formData.transportadora.toUpperCase(),
+                telefoneWhatsapp: formData.telefoneWhatsapp,
+                tipoServico: formData.tipoServico.toUpperCase(),
+                subTipoServico: formData.subTipoServico.toUpperCase(),
+                tipoVeiculo: formData.tipoVeiculo.toUpperCase(),
+                placaVeiculo: formData.placaVeiculo.toUpperCase(),
+                numeroCNH: formData.numeroCNH || '',
+                episSeguranca: formData.episSeguranca
+            };
+            
+            // URL do Google Apps Script
+            const url = 'https://script.google.com/macros/s/AKfycbw9PmuTPwSp8hfVCpXSnQd3eEPUeCfX_z2yGG7eVIxq96TcbdpzokgoIzB_ps78C93Blg/exec';
+            
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            }).then(() => {
+                alert('✅ Checklist enviado com sucesso!\\n\\nVocê receberá uma mensagem no WhatsApp quando estiver liberado para entrar.\\n\\n⏳ Aguarde no veículo ou em área segura.');
+                setTimeout(() => location.reload(), 2000);
+            }).catch(error => {
+                alert('❌ Erro ao enviar. Verifique sua conexão e tente novamente.');
+                console.error(error);
             });
-        });
+        }
+
+        // Iniciar o app
+        renderTelaInicial();
     </script>
 </body>
 </html>
