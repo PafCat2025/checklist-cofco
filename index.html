@@ -1136,6 +1136,16 @@
   </div>
 ) : currentQuestion?.type === 'text' ? (
   <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-3 border-blue-300 rounded-xl p-5 shadow-lg">
+    {/* Dica especial para Razão Social */}
+    {currentQuestion.dica && (
+      <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
+        <p className="text-sm text-yellow-800">
+          <span className="font-bold">💡 O que é isso?</span><br/>
+          {currentQuestion.dica}
+        </p>
+      </div>
+    )}
+    
     <input
       type="text"
       value={formData[currentQuestion.id] || ''}
@@ -1143,11 +1153,21 @@
       placeholder={currentQuestion.placeholder}
       className="w-full p-4 border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none text-xl font-semibold shadow-inner uppercase"
     />
+      
+{/* Contador de caracteres */}
+    {formData[currentQuestion.id] && (
+      <div className="mt-2 text-center">
+        <span className={`text-sm font-semibold ${
+          formData[currentQuestion.id].trim().length >= 3 
+            ? 'text-green-600' 
+            : 'text-red-600'
+        }`}>
+          {formData[currentQuestion.id].trim().length >= 3 ? '✓' : '⚠️'} 
+          {' '}{formData[currentQuestion.id].trim().length} caracteres
+        </span>
+      </div>
+    )}
   </div>
-) : (
-  <div>Tipo de pergunta não reconhecido</div>
-)}
-                  </div>
 
                   <div className="flex gap-3 mt-8">
                     {currentStep > 0 && (
@@ -1157,27 +1177,28 @@
                       </button>
                     )}
 
-                    {currentStep < questions.length - 1 ? (
-                      isCurrentStepValid() && (
-                        <button onClick={handleNext} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-lg transform hover:scale-105">
-                          Próxima
-                          <ChevronRight size={20} />
-                        </button>
-                      )
-                    ) : (
-                      isCurrentStepValid() && (
-                        <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105">
-                          <Check size={20} />
-                          Enviar
-                        </button>
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        };
+{currentStep < questions.length - 1 ? (
+  isCurrentStepValid() && (
+    <button onClick={handleNext} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-lg transform hover:scale-105">
+      Próxima
+      <ChevronRight size={20} />
+    </button>
+  )
+) : (
+  // Na última etapa, exibe o botão APENAS se tiver assinatura
+  isCurrentStepValid() && assinaturaFormulario ? (
+    <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105">
+      <Check size={20} />
+      Enviar
+    </button>
+  ) : (
+    // Botão desabilitado sem assinatura
+    <button disabled className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold bg-gray-300 text-gray-500 cursor-not-allowed opacity-50">
+      <Check size={20} />
+      {assinaturaFormulario ? 'Enviar' : 'Assine para enviar'}
+    </button>
+  )
+)}
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<MobileForm />);
