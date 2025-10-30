@@ -170,7 +170,7 @@
           };
 
           const isCurrentStepValid = () => {
-            if (currentQuestion.optional) return true;
+            if (!currentQuestion || currentQuestion.optional) return true;
             
             if (currentQuestion.type === 'servico-tipo') {
               const tipoServico = formData.tipoServico;
@@ -245,6 +245,7 @@
 
           const startDrawing = (e) => {
             const canvas = canvasRef.current;
+            if (!canvas) return;
             const rect = canvas.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
@@ -258,6 +259,7 @@
             if (!isDrawing) return;
             e.preventDefault();
             const canvas = canvasRef.current;
+            if (!canvas) return;
             const rect = canvas.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
@@ -271,11 +273,12 @@
           const stopDrawing = () => {
             setIsDrawing(false);
             const canvas = canvasRef.current;
-            setAssinatura(canvas.toDataURL());
+            if (canvas) setAssinatura(canvas.toDataURL());
           };
 
           const limparAssinatura = () => {
             const canvas = canvasRef.current;
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             setAssinatura('');
@@ -283,6 +286,7 @@
 
           const startDrawingForm = (e) => {
             const canvas = canvasFormRef.current;
+            if (!canvas) return;
             const rect = canvas.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
@@ -296,6 +300,7 @@
             if (!isDrawingForm) return;
             e.preventDefault();
             const canvas = canvasFormRef.current;
+            if (!canvas) return;
             const rect = canvas.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
@@ -309,11 +314,12 @@
           const stopDrawingForm = () => {
             setIsDrawingForm(false);
             const canvas = canvasFormRef.current;
-            setAssinaturaFormulario(canvas.toDataURL());
+            if (canvas) setAssinaturaFormulario(canvas.toDataURL());
           };
 
           const limparAssinaturaForm = () => {
             const canvas = canvasFormRef.current;
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             setAssinaturaFormulario('');
@@ -337,7 +343,7 @@
             try {
               const url = 'https://script.google.com/macros/s/AKfycbw9PmuTPwSp8hfVCpXSnQd3eEPUeCfX_z2yGG7eVIxq96TcbdpzokgoIzB_ps78C93Blg/exec';
               
-              const response = await fetch(url, {
+              await fetch(url, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
@@ -373,6 +379,7 @@
             return tips[currentQuestion.id] || '';
           };
 
+          // TELA QR CODE
           if (showQR) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
@@ -395,6 +402,7 @@
             );
           }
 
+          // TELA BEM-VINDO
           if (showWelcome) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
@@ -408,7 +416,11 @@
                     <button
                       onClick={() => {
                         setShowWelcome(false);
-                        setCurrentStep(0);
+                        if (perfilSalvo) {
+                          setShowPerfilOpcao(true);
+                        } else {
+                          setCurrentStep(0);
+                        }
                       }}
                       className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                     >
@@ -421,11 +433,13 @@
             );
           }
 
+          // TELA EM DESENVOLVIMENTO (temporária)
           return (
             <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
               <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">Formulário em Desenvolvimento</h1>
-                <p className="text-gray-600">As próximas telas serão implementadas em breve!</p>
+                <h1 className="text-2xl font-bold text-gray-800 mb-4">✅ Funcionou!</h1>
+                <p className="text-gray-600 mb-4">O formulário está carregando corretamente.</p>
+                <p className="text-sm text-blue-600">Etapa atual: {currentStep}</p>
               </div>
             </div>
           );
