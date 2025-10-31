@@ -60,6 +60,7 @@
             subTipoServico: '',
             numeroCNH: '',
             nomeCompleto: '',
+            razaoSocial: '',
             transportadora: '',
             tipoVeiculo: '',
             placaVeiculo: '',
@@ -86,8 +87,28 @@
                 'Coleta': [{ value: 'Almoxarifado', emoji: '🏭' }, { value: 'Outros', emoji: '📝' }]
               }
             },
-            { id: 'nomeCompleto', question: 'Qual é o seu nome completo?', type: 'text', placeholder: 'Digite seu nome completo', minWords: 2 },
-            { id: 'transportadora', question: 'Qual é a Transportadora?', type: 'text', placeholder: 'Digite o nome da transportadora', minLength: 3 },
+            { 
+              id: 'nomeCompleto', 
+              question: 'Qual é o seu nome completo?', 
+              type: 'text', 
+              placeholder: 'Digite seu nome completo', 
+              minWords: 2 
+            },
+            {
+              id: 'razaoSocial',
+              question: 'Qual é a Razão Social da empresa?',
+              type: 'text',
+              placeholder: 'Digite a razão social',
+              minLength: 3,
+              dica: 'A Razão Social é o nome oficial registrado da empresa (exemplo: "Transportadora ABC Ltda"). Geralmente está no CNPJ ou na documentação do veículo.'
+            },
+            { 
+              id: 'transportadora', 
+              question: 'Qual é a Transportadora?', 
+              type: 'text', 
+              placeholder: 'Digite o nome da transportadora', 
+              minLength: 3 
+            },
             {
               id: 'tipoVeiculo',
               question: 'Qual é o tipo do veículo?',
@@ -107,7 +128,12 @@
                 { value: 'Protetor Auricular', emoji: '🎧', color: 'from-green-500 to-emerald-600' }
               ]
             },
-            { id: 'telefoneWhatsapp', question: 'Qual é o seu número para contato e WhatsApp?', type: 'telefone', placeholder: '(00) 00000-0000' },
+            { 
+              id: 'telefoneWhatsapp', 
+              question: 'Qual é o seu número para contato e WhatsApp?', 
+              type: 'telefone', 
+              placeholder: '(00) 00000-0000' 
+            },
             {
               id: 'regrasSeguranca',
               question: 'Regras de Segurança da Empresa',
@@ -153,7 +179,12 @@
                 ]
               }
             },
-            { id: 'conclusao', question: 'Checklist Concluído', type: 'conclusao', subtitle: 'Aguarde autorização para entrada' }
+            { 
+              id: 'conclusao', 
+              question: 'Checklist Concluído', 
+              type: 'conclusao', 
+              subtitle: 'Aguarde autorização para entrada' 
+            }
           ];
 
           const currentQuestion = questions[currentStep];
@@ -176,6 +207,7 @@
           const salvarPerfil = () => {
             const perfil = {
               nomeCompleto: formData.nomeCompleto,
+              razaoSocial: formData.razaoSocial,
               transportadora: formData.transportadora,
               tipoVeiculo: formData.tipoVeiculo,
               placaVeiculo: formData.placaVeiculo,
@@ -191,13 +223,14 @@
               setFormData({
                 ...formData,
                 nomeCompleto: perfilSalvo.nomeCompleto,
+                razaoSocial: perfilSalvo.razaoSocial,
                 transportadora: perfilSalvo.transportadora,
                 tipoVeiculo: perfilSalvo.tipoVeiculo,
                 placaVeiculo: perfilSalvo.placaVeiculo,
                 numeroCNH: perfilSalvo.numeroCNH || ''
               });
               setShowPerfilOpcao(false);
-              setCurrentStep(4);
+              setCurrentStep(5);
             }
           };
           
@@ -228,6 +261,10 @@
               const nome = formData.nomeCompleto.trim();
               const palavras = nome.split(/\s+/).filter(p => p.length > 0);
               return palavras.length >= 2;
+            }
+            
+            if (currentQuestion.id === 'razaoSocial') {
+              return formData.razaoSocial.trim().length >= 3;
             }
             
             if (currentQuestion.id === 'transportadora') {
@@ -261,7 +298,7 @@
 
           const handleNext = () => {
             if (isCurrentStepValid() && currentStep < questions.length - 1) {
-              if (currentStep === 3) salvarPerfil();
+              if (currentStep === 4) salvarPerfil();
               setCurrentStep(currentStep + 1);
             }
           };
@@ -366,6 +403,7 @@
           const enviarWhatsApp = async () => {
             const dadosParaEnviar = {
               nomeCompleto: formData.nomeCompleto.toUpperCase(),
+              razaoSocial: formData.razaoSocial.toUpperCase(),
               transportadora: formData.transportadora.toUpperCase(),
               telefoneWhatsapp: formData.telefoneWhatsapp,
               tipoServico: formData.tipoServico.toUpperCase(),
@@ -401,6 +439,7 @@
             const tips = {
               'tipoServico': '💡 Selecione o tipo de serviço e depois escolha a categoria específica',
               'nomeCompleto': '👤 Digite seu nome completo (nome e sobrenome)',
+              'razaoSocial': '🏢 Digite o nome oficial da empresa registrado no CNPJ',
               'transportadora': '🚛 Informe o nome da empresa transportadora',
               'tipoVeiculo': '🚗 Escolha o tipo de veículo e informe a placa',
               'episSeguranca': '🛡️ Sua segurança é prioridade! Selecione os EPIs que você está usando',
@@ -413,8 +452,7 @@
             return tips[currentQuestion.id] || '';
           };
 
-          // CONTINUA NO PRÓXIMO COMENTÁRIO (PARTE 2 DE 2)
-          
+// TELA DE CONCLUSÃO
           if (showConclusao) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-green-600 via-emerald-500 to-teal-400 flex items-center justify-center p-4">
@@ -485,6 +523,7 @@
             );
           }
 
+          // TELA DE OPÇÃO DE PERFIL
           if (showPerfilOpcao) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
@@ -499,6 +538,7 @@
                       <h3 className="font-bold text-gray-800 mb-3 text-lg">📋 Dados salvos:</h3>
                       <div className="space-y-2">
                         <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Nome:</span><span className="text-gray-700">{perfilSalvo?.nomeCompleto}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Razão Social:</span><span className="text-gray-700">{perfilSalvo?.razaoSocial}</span></div>
                         <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Transportadora:</span><span className="text-gray-700">{perfilSalvo?.transportadora}</span></div>
                         <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Veículo:</span><span className="text-gray-700">{perfilSalvo?.tipoVeiculo}</span></div>
                         <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Placa:</span><span className="text-gray-700 font-mono">{perfilSalvo?.placaVeiculo}</span></div>
@@ -522,6 +562,7 @@
             );
           }
 
+          // TELA QR CODE
           if (showQR) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
@@ -537,6 +578,7 @@
             );
           }
 
+          // TELA BEM-VINDO
           if (showWelcome) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
@@ -597,7 +639,7 @@
             );
           }
 
-          // RENDERIZAÇÃO DO FORMULÁRIO PRINCIPAL
+          // FORMULÁRIO PRINCIPAL
           return (
             <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
               <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full relative">
@@ -638,7 +680,7 @@
                       <p className="text-sm text-blue-800">{getTipText()}</p>
                     </div>
 
-                    {/* SUBSTITUA A LINHA "<div>Formulário carregando...</div>" POR TODO ESTE CÓDIGO: */}
+                    {/* SUBSTITUA A LINHA "RENDERIZAÇÃO DOS TIPOS DE PERGUNTAS - CONTINUA NA PARTE 3" POR ESTE CÓDIGO: */}
 
 {currentQuestion?.type === 'servico-tipo' ? (
   <div className="space-y-4">
@@ -1136,7 +1178,6 @@
   </div>
 ) : currentQuestion?.type === 'text' ? (
   <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-3 border-blue-300 rounded-xl p-5 shadow-lg">
-    {/* Dica especial para Razão Social */}
     {currentQuestion.dica && (
       <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4">
         <p className="text-sm text-yellow-800">
@@ -1153,8 +1194,7 @@
       placeholder={currentQuestion.placeholder}
       className="w-full p-4 border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none text-xl font-semibold shadow-inner uppercase"
     />
-      
-{/* Contador de caracteres */}
+    
     {formData[currentQuestion.id] && (
       <div className="mt-2 text-center">
         <span className={`text-sm font-semibold ${
@@ -1168,6 +1208,10 @@
       </div>
     )}
   </div>
+) : (
+  <div className="text-center text-gray-500">Tipo de pergunta não reconhecido</div>
+)}
+                  </div>
 
                   <div className="flex gap-3 mt-8">
                     {currentStep > 0 && (
@@ -1177,28 +1221,32 @@
                       </button>
                     )}
 
-{currentStep < questions.length - 1 ? (
-  isCurrentStepValid() && (
-    <button onClick={handleNext} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-lg transform hover:scale-105">
-      Próxima
-      <ChevronRight size={20} />
-    </button>
-  )
-) : (
-  // Na última etapa, exibe o botão APENAS se tiver assinatura
-  isCurrentStepValid() && assinaturaFormulario ? (
-    <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105">
-      <Check size={20} />
-      Enviar
-    </button>
-  ) : (
-    // Botão desabilitado sem assinatura
-    <button disabled className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold bg-gray-300 text-gray-500 cursor-not-allowed opacity-50">
-      <Check size={20} />
-      {assinaturaFormulario ? 'Enviar' : 'Assine para enviar'}
-    </button>
-  )
-)}
+                    {currentStep < questions.length - 1 ? (
+                      isCurrentStepValid() && (
+                        <button onClick={handleNext} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-lg transform hover:scale-105">
+                          Próxima
+                          <ChevronRight size={20} />
+                        </button>
+                      )
+                    ) : (
+                      isCurrentStepValid() && assinaturaFormulario ? (
+                        <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105">
+                          <Check size={20} />
+                          Enviar
+                        </button>
+                      ) : (
+                        <button disabled className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold bg-gray-300 text-gray-500 cursor-not-allowed opacity-50">
+                          <Check size={20} />
+                          {assinaturaFormulario ? 'Enviar' : '⚠️ Assine para enviar'}
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<MobileForm />);
