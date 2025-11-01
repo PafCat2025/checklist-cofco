@@ -184,22 +184,22 @@
           const currentQuestion = questions[currentStep];
           
           useEffect(() => {
-            // Carregar múltiplos perfis
-            const perfisLocal = localStorage.getItem('perfisChecklistCofco');
-            if (perfisLocal) {
+            const perfilLocal = localStorage.getItem('perfilChecklistCofco');
+            if (perfilLocal) {
               try {
-                const perfis = JSON.parse(perfisLocal);
-                if (perfis.length > 0) {
-                    setPerfilSalvo(perfis);
+                const perfil = JSON.parse(perfilLocal);
+                setPerfilSalvo(perfil);
+                if (perfil.numeroCNH) {
+                  setFormData(prev => ({ ...prev, numeroCNH: perfil.numeroCNH }));
                 }
               } catch (e) {
-                console.error('Erro ao carregar perfis:', e);
+                console.error('Erro ao carregar perfil:', e);
               }
             }
           }, []);
           
-          const salvarperfil = () => {
-            const novoperfil = {
+          const salvarPerfil = () => {
+            const perfil = {
               nomeCompleto: formData.nomeCompleto,
               razaoSocial: formData.razaoSocial,
               transportadora: formData.transportadora,
@@ -208,29 +208,9 @@
               numeroCNH: formData.numeroCNH,
               dataSalvamento: new Date().toISOString()
             };
-
-          // Buscar perfis existentes
-          const perfisExistentes = JSON.parse(localStorage.getItem('perfisChecklistCofco') || '[]');
-
-          // Verificar se já existe um perfil com a mesma placa
-          const indexExistente = perfisExistentes.findIndex(p => p.placaVeiculo === novoperfil.placaVeiculo);
-
-          if (indexExistente !== -1) {
-              // Atualizar perfil existente
-              perfisExistentes[indexExistente] = novoperfil;
-          } else {
-              // Adicionar novo perfil
-              perfisExistentes.push(novoperfil);
-          }
-              // Manter apenas os 2 mais recentes
-              if (perfisExistentes.length > 2) {
-                  perfisExistentes.shift(); // Remove o mais antigo
-              }
-          }
-
-            localStorage.setItem('perfilChecklistCofco', JSON.stringify(perfisExistentes));
-            setPerfilSalvo(perfisExistentes);
-          }
+            localStorage.setItem('perfilChecklistCofco', JSON.stringify(perfil));
+            setPerfilSalvo(perfil);
+          };
           
           const usarPerfil = () => {
             if (perfilSalvo) {
@@ -311,23 +291,10 @@
 
           const handleNext = () => {
             if (isCurrentStepValid() && currentStep < questions.length - 1) {
-              // Verificar perfil salvo APÓS selecionar tipo e subtipo (step 0)
+              if (currentStep === 4) salvarPerfil();
               if (currentStep === 0 && perfilSalvo && !formData.nomeCompleto) {
-                // Verificar se é array ou objeto único
-                const temPerfis = Array.isArray(perfilSalvo)
-                    ? perfilSalvo.length > 0
-                    : perfilSalvo !== null;
-
-                if (temPerfis) {
-                    setShowPerfilOpcao(true);
-                    return; // Para aqui e mostra opção de usar perfil
-                }
-            }
-
-
-            // Salvar perfil após preencher placa (step 4)
-            if (currentStep === 4) {
-                salvarPerfil();
+                setShowPerfilOpcao(true);
+                return;
             }
 
               setCurrentStep(currentStep + 1);
@@ -589,86 +556,42 @@
 
           // TELA DE OPÇÃO DE PERFIL
           if (showPerfilOpcao) {
-            const perfis = Array.isArray(perfilSalvo) ? perfilSalvo : [perfilSalvo];
-
             return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-6 text-center">
+              <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-6 text-center">
                     <div className="text-6xl mb-3">👤</div>
-                    <h1 className="text-2xl font-bold text-white mb-2">
-                        {perfis.length > 1 ? 'Perfis Detectados!' : 'Perfil Detectado!'}
-                    </h1>
-                    <p className="text-white opacity-90">Quer usar dados salvos?</p>
-                </div>
-                <div className="p-6 space-y-4">
-                    {perfis.map((perfil, index) => (
-                        <div key={index} className="bg-gradient-to-r from-blue-50 to-cyan-50 border-3 border-blue-300 rounded-xl p-5">
-                            <h3 className="font-bold text-gray-800 mb-3 text-lg flex items-center gap-2">
-                                <span>📋</span>
-                                Perfil {perfis.length > 1 ? index + 1 : ''}
-                            </h3>
-                            <div className="space-y-2 mb-4">
-                                <div className="flex items-start gap-2">
-                                    <span className="font-semibold text-blue-700">Nome:</span>
-                                    <span className="text-gray-700">{perfil.nomeCompleto}</span>
-                                </div>
-                                <div className="flex items-start gap-2">
-                                    <span className="font-semibold text-blue-700">Razão Social:</span>
-                                    <span className="text-gray-700">{perfil.razaoSocial}</span>
-                                </div>
-                                <div className="flex items-start gap-2">
-                                    <span className="font-semibold text-blue-700">Placa:</span>
-                                    <span className="text-gray-700 font-mono">{perfil.placaVeiculo}</span>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => {
-                                    setFormData({
-                                        ...formData,
-                                        nomeCompleto: perfil.nomeCompleto,
-                                        razaoSocial: perfil.razaoSocial,
-                                        transportadora: perfil.transportadora,
-                                        tipoVeiculo: perfil.tipoVeiculo,
-                                        placaVeiculo: perfil.placaVeiculo,
-                                        numeroCNH: perfil.numeroCNH || ''
-                                    });
-                                    setShowPerfilOpcao(false);
-                                    setCurrentStep(5);
-                                }} 
-                                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all flex items-center justify-center gap-2"
-                            >
-                                <Check size={20} />
-                                Usar este perfil
-                            </button>
-                        </div>
-                    ))}
-                    
-                    <button 
-                        onClick={() => { setShowPerfilOpcao(false); setCurrentStep(1); }} 
-                        className="w-full bg-gray-100 text-gray-700 font-semibold py-4 px-6 rounded-xl hover:bg-gray-200 transition-all"
-                    >
+                    <h1 className="text-2xl font-bold text-white mb-2">Perfil Detectado!</h1>
+                    <p className="text-white opacity-90">Quer usar seus dados salvos?</p>
+                  </div>
+                  <div className="p-6">
+                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-3 border-blue-300 rounded-xl p-5 mb-6">
+                      <h3 className="font-bold text-gray-800 mb-3 text-lg">📋 Dados salvos:</h3>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Nome:</span><span className="text-gray-700">{perfilSalvo?.nomeCompleto}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Razão Social:</span><span className="text-gray-700">{perfilSalvo?.razaoSocial}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Transportadora:</span><span className="text-gray-700">{perfilSalvo?.transportadora}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Veículo:</span><span className="text-gray-700">{perfilSalvo?.tipoVeiculo}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Placa:</span><span className="text-gray-700 font-mono">{perfilSalvo?.placaVeiculo}</span></div>
+                        {perfilSalvo?.numeroCNH && (<div className="flex items-start gap-2"><span className="font-semibold text-blue-700">CNH:</span><span className="text-gray-700 font-mono">{perfilSalvo.numeroCNH}</span></div>)}
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <button onClick={usarPerfil} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all flex items-center justify-center gap-2">
+                        <Check size={24} />Sim, usar meu perfil
+                      </button>
+                      <button onClick={() => { setShowPerfilOpcao(false); setCurrentStep(0); }} className="w-full bg-gray-100 text-gray-700 font-semibold py-4 px-6 rounded-xl hover:bg-gray-200 transition-all">
                         Não, preencher novamente
-                    </button>
-                    
-                    <button 
-                        onClick={() => { 
-                            if (confirm('Tem certeza que deseja excluir todos os perfis salvos?')) { 
-                                localStorage.removeItem('perfisChecklistCofco'); 
-                                setPerfilSalvo(null); 
-                                setShowPerfilOpcao(false); 
-                                setCurrentStep(1); 
-                            }
-                        }} 
-                        className="w-full bg-red-50 text-red-600 font-semibold py-3 px-6 rounded-xl hover:bg-red-100 transition-all text-sm"
-                    >
-                        🗑️ Excluir todos os perfis
-                    </button>
+                      </button>
+                      <button onClick={() => { if (confirm('Tem certeza que deseja excluir seu perfil salvo?')) { localStorage.removeItem('perfilChecklistCofco'); setPerfilSalvo(null); setShowPerfilOpcao(false); setCurrentStep(0); }}} className="w-full bg-red-50 text-red-600 font-semibold py-3 px-6 rounded-xl hover:bg-red-100 transition-all text-sm">
+                        🗑️ Excluir perfil salvo
+                      </button>
+                    </div>
+                  </div>
                 </div>
-            </div>
-        </div>
-    );
-}
+              </div>
+            );
+          }
 
           // TELA QR CODE
           if (showQR) {
