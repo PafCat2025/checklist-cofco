@@ -179,12 +179,6 @@
                 ]
               }
             },
-            { 
-              id: 'conclusao', 
-              question: 'Checklist Concluído', 
-              type: 'conclusao', 
-              subtitle: 'Aguarde autorização para entrada' 
-            }
           ];
 
           const currentQuestion = questions[currentStep];
@@ -290,7 +284,6 @@
             if (currentQuestion.type === 'regras-aceite') return formData.regrasAceitas === true;
             if (currentQuestion.type === 'avisos-aceite') return formData.avisosAceitos === true;
             if (currentQuestion.type === 'termo-aceite') return formData.termoAceito === true;
-            if (currentQuestion.type === 'conclusao') return true;
             
             const value = formData[currentQuestion.id];
             return value && value.trim() !== '';
@@ -459,74 +452,107 @@
 
 // TELA DE CONCLUSÃO
           if (showConclusao) {
-            return (
-              <div className="min-h-screen bg-gradient-to-br from-green-600 via-emerald-500 to-teal-400 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
-                  <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-center">
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-green-600 via-emerald-500 to-teal-400 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-center">
                     <div className="text-7xl mb-4">✅</div>
                     <h1 className="text-3xl font-bold text-white mb-2">Checklist Concluído!</h1>
-                    <p className="text-white opacity-90">Obrigado por preencher com atenção</p>
-                  </div>
+                    <p className="text-white opacity-90">Última etapa: Assinatura Digital</p>
+                </div>
 
-                  <div className="p-6 space-y-6">
+                <div className="p-6 space-y-6">
                     <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-4">
-                      <p className="text-center text-blue-800 font-semibold">
-                        📅 {dataHoraConclusao?.toLocaleDateString('pt-BR')}
-                      </p>
-                      <p className="text-center text-blue-600 text-lg font-bold">
-                        🕐 {dataHoraConclusao?.toLocaleTimeString('pt-BR')}
-                      </p>
+                        <p className="text-center text-blue-800 font-semibold">
+                            📅 {dataHoraConclusao?.toLocaleDateString('pt-BR')}
+                        </p>
+                        <p className="text-center text-blue-600 text-lg font-bold">
+                            🕐 {dataHoraConclusao?.toLocaleTimeString('pt-BR')}
+                        </p>
                     </div>
 
                     <div className="border-3 border-gray-300 rounded-xl p-4 bg-gray-50">
-                      <label className="block text-gray-800 font-bold mb-3 text-center">✏️ Assinatura Digital</label>
-                      <canvas
-                        ref={canvasRef}
-                        width={300}
-                        height={150}
-                        onMouseDown={startDrawing}
-                        onMouseMove={draw}
-                        onMouseUp={stopDrawing}
-                        onMouseLeave={stopDrawing}
-                        onTouchStart={startDrawing}
-                        onTouchMove={draw}
-                        onTouchEnd={stopDrawing}
-                        className="w-full border-2 border-gray-300 rounded-lg bg-white cursor-crosshair touch-none"
-                      />
-                      <button onClick={limparAssinatura} className="mt-2 w-full py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">
-                        🗑️ Limpar assinatura
-                      </button>
+                        <label className="block text-gray-800 font-bold mb-3 text-center">✍️ Assinatura Digital</label>
+                        <p className="text-sm text-gray-600 text-center mb-3">
+                            Assine com o dedo ou mouse no espaço abaixo
+                        </p>
+                        <canvas
+                            ref={canvasRef}
+                            width={300}
+                            height={150}
+                            onMouseDown={startDrawing}
+                            onMouseMove={draw}
+                            onMouseUp={stopDrawing}
+                            onMouseLeave={stopDrawing}
+                            onTouchStart={startDrawing}
+                            onTouchMove={draw}
+                            onTouchEnd={stopDrawing}
+                            className="w-full border-2 border-gray-300 rounded-lg bg-white cursor-crosshair touch-none"
+                        />
+                        <button onClick={limparAssinatura} className="mt-2 w-full py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">
+                            🗑️ Limpar assinatura
+                        </button>
                     </div>
 
+                    {!assinatura && (
+                        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4">
+                            <p className="text-center text-yellow-800 font-semibold flex items-center justify-center gap-2">
+                                <span className="text-2xl">⚠️</span>
+                                Assine acima para continuar
+                            </p>
+                        </div>
+                    )}
+
+                    {assinatura && (
+                        <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4">
+                            <p className="text-center text-green-800 font-semibold flex items-center justify-center gap-2">
+                                <span className="text-2xl">✅</span>
+                                Assinatura capturada com sucesso!
+                            </p>
+                        </div>
+                    )}
+
                     <div className="bg-amber-50 border-2 border-amber-400 rounded-xl p-5">
-                      <h3 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
-                        <span className="text-2xl">⏳</span>Próximos passos:
-                      </h3>
-                      <ul className="space-y-2 text-amber-800">
-                        <li className="flex items-start gap-2"><span>1️⃣</span><span>Envie o checklist pelo WhatsApp</span></li>
-                        <li className="flex items-start gap-2"><span>2️⃣</span><span>Aguarde no veículo ou em área segura</span></li>
-                        <li className="flex items-start gap-2"><span>3️⃣</span><span>Você receberá autorização via WhatsApp ou ligação</span></li>
-                      </ul>
+                        <h3 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                            <span className="text-2xl">ℹ️</span>Próximos passos:
+                        </h3>
+                        <ul className="space-y-2 text-amber-800">
+                            <li className="flex items-start gap-2">
+                                <span>1️⃣</span>
+                                <span>Assine digitalmente acima</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span>2️⃣</span>
+                                <span>Clique no botão "Enviar" abaixo</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span>3️⃣</span>
+                                <span>Aguarde no veículo ou área segura</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span>4️⃣</span>
+                                <span>Você receberá autorização da portaria</span>
+                            </li>
+                        </ul>
                     </div>
 
                     <button
-                      onClick={enviarWhatsApp}
-                      disabled={!assinatura}
-                      className={`w-full py-4 px-6 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
-                        assinatura ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
+                        onClick={enviarWhatsApp}
+                        disabled={!assinatura}
+                        className={`w-full py-4 px-6 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
+                            assinatura 
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105' 
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
                     >
-                      <span className="text-2xl">🚀</span>Concluir e Enviar
+                        <span className="text-2xl">📤</span>
+                        {assinatura ? 'Enviar Checklist' : 'Assine para Enviar'}
                     </button>
-
-                    {!assinatura && (
-                      <p className="text-center text-red-600 text-sm font-semibold">⚠️ Assine acima para enviar o checklist</p>
-                    )}
-                  </div>
                 </div>
-              </div>
-            );
-          }
+            </div>
+        </div>
+    );
+}
 
           // TELA DE OPÇÃO DE PERFIL
           if (showPerfilOpcao) {
@@ -1209,7 +1235,7 @@
                       isCurrentStepValid() && (
                         <button onClick={handleSubmit} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105">
                           <Check size={20} />
-                          Enviar
+                          Concluir
                         </button>
                       )
                     )}
