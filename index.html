@@ -198,7 +198,7 @@
             }
           }, []);
           
-          const salvarPerfil = () => {
+          const salvarperfil = () => {
             const novoperfil = {
               nomeCompleto: formData.nomeCompleto,
               razaoSocial: formData.razaoSocial,
@@ -213,14 +213,14 @@
           const perfisExistentes = JSON.parse(localStorage.getItem('perfisChecklistCofco') || '[]');
 
           // Verificar se já existe um perfil com a mesma placa
-          const indexExistente = perfisExistentes.findIndex(p => p.placaVeiculo === novoPerfil.placaVeiculo);
+          const indexExistente = perfisExistentes.findIndex(p => p.placaVeiculo === novoperfil.placaVeiculo);
 
           if (indexExistente > -1) {
               // Atualizar perfil existente
-              perfisExistentes[indexExistente] = novoPerfil;
+              perfisExistentes[indexExistente] = novoperfil;
           } else {
               // Adicionar novo perfil
-              perfisExistentes.push(novoPerfil);
+              perfisExistentes.push(novoperfil);
 
               // Manter apenas os 2 mais recentes
               if (perfisExistentes.length > 2) {
