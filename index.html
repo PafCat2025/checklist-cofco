@@ -311,10 +311,23 @@
 
           const handleNext = () => {
             if (isCurrentStepValid() && currentStep < questions.length - 1) {
-              if (currentStep === 4) salvarPerfil();
+              // Verificar perfil salvo APÓS selecionar tipo e subtipo (step 0)
               if (currentStep === 0 && perfilSalvo && !formData.nomeCompleto) {
-                setShowPerfilOpcao(true);
-                return;
+                // Verificar se é array ou objeto único
+                const temPerfis = Array.isArray(perfilSalvo)
+                    ? perfilSalvo.length > 0
+                    : perfilSalvo !== null;
+
+                if (temPerfis) {
+                    setShowPerfilOpcao(true);
+                    return; // Para aqui e mostra opção de usar perfil
+                }
+            }
+
+
+            // Salvar perfil após preencher placa (step 4)
+            if (currentStep === 4) {
+                salvarPerfil();
             }
 
               setCurrentStep(currentStep + 1);
