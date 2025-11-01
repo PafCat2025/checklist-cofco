@@ -215,22 +215,22 @@
           // Verificar se já existe um perfil com a mesma placa
           const indexExistente = perfisExistentes.findIndex(p => p.placaVeiculo === novoperfil.placaVeiculo);
 
-          if (indexExistente > -1) {
+          if (indexExistente !== -1) {
               // Atualizar perfil existente
               perfisExistentes[indexExistente] = novoperfil;
           } else {
               // Adicionar novo perfil
               perfisExistentes.push(novoperfil);
-
+          }
               // Manter apenas os 2 mais recentes
               if (perfisExistentes.length > 2) {
                   perfisExistentes.shift(); // Remove o mais antigo
               }
           }
 
-            localStorage.setItem('perfilChecklistCofco', JSON.stringify(perfil));
-            setPerfilSalvo(perfil);
-          };
+            localStorage.setItem('perfilChecklistCofco', JSON.stringify(perfisExistentes));
+            setPerfilSalvo(perfisExistentes);
+          }
           
           const usarPerfil = () => {
             if (perfilSalvo) {
