@@ -402,6 +402,11 @@
           };
 
           const enviarWhatsApp = async () => {
+            // Usar a assinatura da tela de conclusão (a que realmente tem dados)
+            const assinaturaFinal = assinatura || assinaturaFormulario || '';
+
+            console.log('📝 Verificando assinatura:', assinaturaFinal ? 'TEM' : 'NÃO TEM');
+
             const dadosParaEnviar = {
               nomeCompleto: formData.nomeCompleto.toUpperCase(),
               razaoSocial: formData.razaoSocial.toUpperCase(),
@@ -413,8 +418,7 @@
               placaVeiculo: formData.placaVeiculo.toUpperCase(),
               numeroCNH: formData.numeroCNH || '',
               episSeguranca: formData.episSeguranca,
-              assinatura: assinatura,
-              assinaturaFormulario: assinaturaFormulario
+              assinaturaFormulario: assinaturaFinal // Envia a assinatura correta
             };
             
             try {
