@@ -8,6 +8,11 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ✅ Firebase SDK Web -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
         body { margin: 0; padding: 0; overflow-x: hidden; }
         .animate-fade-in { animation: fadeIn 0.3s ease-in; }
@@ -16,6 +21,22 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+    
+    <script>
+        // ⚠️ IMPORTANTE: Configure suas credenciais do Firebase aqui
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4UnbPdZhneECzX-hnNLsyTcuQhzJTEI0",
+            authDomain: "gerenciador-cofco.firebaseapp.com",
+            projectId: "gerenciador-cofco",
+            storageBucket: "gerenciador-cofco.firebasestorage.app",
+            messagingSenderId: "551586385150",
+            appId: "1:551586385150:web:7ef1478a7842e1ae2129af",
+        };
+        
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
 </head>
 <body>
     <div id="root"></div>
@@ -394,6 +415,7 @@
             setAssinaturaFormulario('');
           };
 
+          // 🔥 FUNÇÃO ALTERADA: Envio para Firebase ao invés de Google Sheets
           const enviarWhatsApp = async () => {
             // Usar a assinatura da tela de conclusão (a que realmente tem dados)
             const assinaturaFinal = assinatura || assinaturaFormulario || '';
@@ -411,24 +433,23 @@
               placaVeiculo: formData.placaVeiculo.toUpperCase(),
               numeroCNH: formData.numeroCNH || '',
               episSeguranca: formData.episSeguranca,
-              assinaturaFormulario: assinaturaFinal // Envia a assinatura correta
+              assinaturaFormulario: assinaturaFinal,
+              // Metadados adicionais
+              origem: 'QR_CODE_WEB',
+              status: 'Aguardando',
+              dataHoraPreenchimento: new Date().toLocaleString('pt-BR'),
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
             
             try {
-              const url = 'https://script.google.com/macros/s/AKfycbyRR3N3d1pg8BHS-C3xFybMutwrABQDu8WXzcPvfn0FQLCwozBaMBleqYh_Gbn7CbzyQg/exec';
+              // ✅ ENVIO PARA FIREBASE FIRESTORE
+              await db.collection('checklists').add(dadosParaEnviar);
               
-              await fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosParaEnviar)
-              });
-              
-              alert('✅ Checklist enviado com sucesso!\\n\\nVocê receberá uma mensagem no WhatsApp quando estiver liberado para entrar.\\n\\n⏳ Aguarde no veículo ou em área segura.');
+              alert('✅ Checklist enviado com sucesso!\n\nVocê receberá uma mensagem no WhatsApp quando estiver liberado para entrar.\n\n⏳ Aguarde no veículo ou em área segura.');
               setTimeout(() => window.location.reload(), 2000);
             } catch (error) {
               alert('❌ Erro ao enviar. Verifique sua conexão e tente novamente.');
-              console.error(error);
+              console.error('Erro Firebase:', error);
             }
           };
 
@@ -523,15 +544,11 @@
                             </li>
                             <li className="flex items-start gap-2">
                                 <span>2️⃣</span>
-                                <span>Clique no botão "Enviar" abaixo</span>
+                                <span>Clique no botão verde abaixo</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <span>3️⃣</span>
-                                <span>Aguarde no veículo ou área segura</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span>4️⃣</span>
-                                <span>Você receberá autorização da portaria</span>
+                                <span>Aguarde a mensagem no WhatsApp</span>
                             </li>
                         </ul>
                     </div>
@@ -539,14 +556,13 @@
                     <button
                         onClick={enviarWhatsApp}
                         disabled={!assinatura}
-                        className={`w-full py-4 px-6 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${
-                            assinatura 
-                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105' 
+                        className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 ${
+                            assinatura
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg transform hover:scale-105 cursor-pointer'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                     >
-                        <span className="text-2xl">📤</span>
-                        {assinatura ? 'Enviar Checklist' : 'Assine para Enviar'}
+                        {assinatura ? '📤 Enviar Checklist' : '⚠️ Assine primeiro'}
                     </button>
                 </div>
             </div>
@@ -554,25 +570,25 @@
     );
 }
 
-          // TELA DE OPÇÃO DE PERFIL
-          if (showPerfilOpcao) {
+          // TELA DE PERFIL SALVO
+          if (showPerfilOpcao && perfilSalvo) {
             return (
               <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-cyan-300 flex items-center justify-center p-4">
                 <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-md w-full">
-                  <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-6 text-center">
-                    <div className="text-6xl mb-3">👤</div>
-                    <h1 className="text-2xl font-bold text-white mb-2">Perfil Detectado!</h1>
-                    <p className="text-white opacity-90">Quer usar seus dados salvos?</p>
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-8 text-center">
+                    <div className="text-7xl mb-4">👤</div>
+                    <h1 className="text-3xl font-bold text-white mb-2">Perfil Encontrado!</h1>
+                    <p className="text-white opacity-90">Deseja usar suas informações salvas?</p>
                   </div>
-                  <div className="p-6">
-                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-3 border-blue-300 rounded-xl p-5 mb-6">
-                      <h3 className="font-bold text-gray-800 mb-3 text-lg">📋 Dados salvos:</h3>
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Nome:</span><span className="text-gray-700">{perfilSalvo?.nomeCompleto}</span></div>
-                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Razão Social:</span><span className="text-gray-700">{perfilSalvo?.razaoSocial}</span></div>
-                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Transportadora:</span><span className="text-gray-700">{perfilSalvo?.transportadora}</span></div>
-                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Veículo:</span><span className="text-gray-700">{perfilSalvo?.tipoVeiculo}</span></div>
-                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Placa:</span><span className="text-gray-700 font-mono">{perfilSalvo?.placaVeiculo}</span></div>
+                  <div className="p-8">
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-5 mb-6">
+                      <h3 className="font-bold text-blue-900 mb-3">📋 Informações salvas:</h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Nome:</span><span className="text-gray-700">{perfilSalvo.nomeCompleto}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Razão Social:</span><span className="text-gray-700">{perfilSalvo.razaoSocial}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Transportadora:</span><span className="text-gray-700">{perfilSalvo.transportadora}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Tipo Veículo:</span><span className="text-gray-700">{perfilSalvo.tipoVeiculo}</span></div>
+                        <div className="flex items-start gap-2"><span className="font-semibold text-blue-700">Placa:</span><span className="text-gray-700 font-mono">{perfilSalvo.placaVeiculo}</span></div>
                         {perfilSalvo?.numeroCNH && (<div className="flex items-start gap-2"><span className="font-semibold text-blue-700">CNH:</span><span className="text-gray-700 font-mono">{perfilSalvo.numeroCNH}</span></div>)}
                       </div>
                     </div>
@@ -711,7 +727,7 @@
                       <p className="text-sm text-blue-800">{getTipText()}</p>
                     </div>
 
-                    {/* SUBSTITUA A LINHA "RENDERIZAÇÃO DOS TIPOS DE PERGUNTAS - CONTINUA NA PARTE 3" POR ESTE CÓDIGO: */}
+                    {/* RENDERIZAÇÃO DOS TIPOS DE PERGUNTAS */}
 
 {currentQuestion?.type === 'servico-tipo' ? (
   <div className="space-y-4">
@@ -1158,25 +1174,6 @@
           </span>
         </div>
       </label>
-    </div>
-  </div>
-) : currentQuestion?.type === 'conclusao' ? (
-  <div className="text-center space-y-6">
-    <div className="text-8xl mb-4">✅</div>
-    <h3 className="text-2xl font-bold text-gray-800">
-      Checklist Completo!
-    </h3>
-    <p className="text-gray-600 text-lg">
-      Todas as informações foram preenchidas
-    </p>
-    
-    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-3 border-green-400 rounded-xl p-6">
-      <p className="text-green-800 font-semibold text-lg">
-        ✅ Todas as informações foram verificadas
-      </p>
-      <p className="text-green-700 mt-2">
-        Clique em "Enviar" para finalizar
-      </p>
     </div>
   </div>
 ) : currentQuestion?.type === 'text' ? (
